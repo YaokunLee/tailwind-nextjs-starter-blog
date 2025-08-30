@@ -22,7 +22,7 @@ const StockChart: React.FC<StockChartProps> = ({
   symbol = 'TMDX',
   width = '100%',
   height = 500,
-  days = 90
+  days = 90,
 }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const [stockData, setStockData] = useState<StockData[]>([])
@@ -33,37 +33,37 @@ const StockChart: React.FC<StockChartProps> = ({
   const generateMockData = (symbol: string, days: number): StockData[] => {
     const data: StockData[] = []
     let basePrice = 50 + Math.random() * 100 // 基础价格在50-150之间
-    
+
     for (let i = days; i >= 0; i--) {
       const date = new Date()
       date.setDate(date.getDate() - i)
-      
+
       // 模拟价格变动
       const volatility = 0.02 // 2%波动率
       const change = (Math.random() - 0.5) * 2 * volatility
       basePrice = basePrice * (1 + change)
-      
+
       // 确保价格不会太低
       basePrice = Math.max(basePrice, 10)
-      
+
       const open = basePrice
       const close = open * (1 + (Math.random() - 0.5) * 0.02)
       const high = Math.max(open, close) * (1 + Math.random() * 0.01)
       const low = Math.min(open, close) * (1 - Math.random() * 0.01)
       const volume = Math.floor(Math.random() * 1000000) + 100000
-      
+
       data.push({
         date: date.toISOString().split('T')[0],
         open: Number(open.toFixed(2)),
         high: Number(high.toFixed(2)),
         low: Number(low.toFixed(2)),
         close: Number(close.toFixed(2)),
-        volume
+        volume,
       })
-      
+
       basePrice = close
     }
-    
+
     return data
   }
 
@@ -99,16 +99,21 @@ const StockChart: React.FC<StockChartProps> = ({
     drawCandlestickChart(ctx, stockData, canvas.width, canvas.height)
   }, [stockData])
 
-  const drawCandlestickChart = (ctx: CanvasRenderingContext2D, data: StockData[], width: number, height: number) => {
+  const drawCandlestickChart = (
+    ctx: CanvasRenderingContext2D,
+    data: StockData[],
+    width: number,
+    height: number
+  ) => {
     const padding = 40
     const chartWidth = width - padding * 2
     const chartHeight = height - padding * 2
 
     // 清空画布
     ctx.clearRect(0, 0, width, height)
-    
+
     // 找出价格范围
-    const prices = data.flatMap(d => [d.high, d.low])
+    const prices = data.flatMap((d) => [d.high, d.low])
     const minPrice = Math.min(...prices)
     const maxPrice = Math.max(...prices)
     const priceRange = maxPrice - minPrice
@@ -117,7 +122,7 @@ const StockChart: React.FC<StockChartProps> = ({
     // 绘制背景网格
     ctx.strokeStyle = '#e0e0e0'
     ctx.lineWidth = 1
-    
+
     // 水平网格线
     for (let i = 0; i <= 5; i++) {
       const y = padding + (chartHeight * i) / 5
@@ -125,7 +130,7 @@ const StockChart: React.FC<StockChartProps> = ({
       ctx.moveTo(padding, y)
       ctx.lineTo(width - padding, y)
       ctx.stroke()
-      
+
       // 价格标签
       const price = maxPrice - (priceRange * i) / 5
       ctx.fillStyle = '#666'
@@ -145,7 +150,7 @@ const StockChart: React.FC<StockChartProps> = ({
 
     // 绘制K线
     const candleWidth = Math.max(2, chartWidth / data.length - 2)
-    
+
     data.forEach((item, index) => {
       const x = padding + (chartWidth * index) / (data.length - 1)
       const openY = padding + (maxPrice - item.open) * priceScale
@@ -156,7 +161,7 @@ const StockChart: React.FC<StockChartProps> = ({
       // K线颜色：涨绿跌红
       const isUp = item.close > item.open
       const color = isUp ? '#00c851' : '#ff3547'
-      
+
       // 绘制上下影线
       ctx.strokeStyle = color
       ctx.lineWidth = 1
@@ -169,7 +174,7 @@ const StockChart: React.FC<StockChartProps> = ({
       ctx.fillStyle = color
       const bodyHeight = Math.abs(closeY - openY)
       const bodyY = Math.min(openY, closeY)
-      
+
       if (bodyHeight < 1) {
         // 如果实体太小，绘制一条线
         ctx.fillRect(x - candleWidth / 2, bodyY, candleWidth, 1)
@@ -186,13 +191,13 @@ const StockChart: React.FC<StockChartProps> = ({
 
   if (loading) {
     return (
-      <div className="my-6 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
-        <div 
+      <div className="my-6 overflow-hidden rounded-lg border border-gray-200 dark:border-gray-700">
+        <div
           className="flex items-center justify-center bg-gray-50 dark:bg-gray-800"
           style={{ height: typeof height === 'string' ? height : `${height}px` }}
         >
           <div className="text-center">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto mb-2"></div>
+            <div className="mx-auto mb-2 h-8 w-8 animate-spin rounded-full border-b-2 border-blue-500"></div>
             <p className="text-gray-500">加载股价数据中...</p>
           </div>
         </div>
@@ -202,16 +207,16 @@ const StockChart: React.FC<StockChartProps> = ({
 
   if (error) {
     return (
-      <div className="my-6 rounded-lg border border-red-200 dark:border-red-700 overflow-hidden">
-        <div 
+      <div className="my-6 overflow-hidden rounded-lg border border-red-200 dark:border-red-700">
+        <div
           className="flex items-center justify-center bg-red-50 dark:bg-red-900"
           style={{ height: typeof height === 'string' ? height : `${height}px` }}
         >
           <div className="text-center">
-            <p className="text-red-500 mb-2">⚠️ {error}</p>
-            <button 
-              onClick={() => window.location.reload()} 
-              className="text-blue-500 hover:text-blue-700 underline"
+            <p className="mb-2 text-red-500">⚠️ {error}</p>
+            <button
+              onClick={() => window.location.reload()}
+              className="text-blue-500 underline hover:text-blue-700"
             >
               重新加载
             </button>
@@ -222,11 +227,9 @@ const StockChart: React.FC<StockChartProps> = ({
   }
 
   return (
-    <div className="my-6 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
-      <div className="p-4 bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-          {symbol} 股价走势图
-        </h3>
+    <div className="my-6 overflow-hidden rounded-lg border border-gray-200 dark:border-gray-700">
+      <div className="border-b border-gray-200 bg-gray-50 p-4 dark:border-gray-700 dark:bg-gray-800">
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-white">{symbol} 股价走势图</h3>
         <p className="text-sm text-gray-500">
           最近{days}天 • 当前价格: ${stockData[stockData.length - 1]?.close || 0}
         </p>
@@ -235,13 +238,13 @@ const StockChart: React.FC<StockChartProps> = ({
         <canvas
           ref={canvasRef}
           className="w-full"
-          style={{ 
+          style={{
             height: typeof height === 'string' ? height : `${height}px`,
-            width: typeof width === 'string' ? width : `${width}px`
+            width: typeof width === 'string' ? width : `${width}px`,
           }}
         />
       </div>
-      <div className="p-2 text-center text-xs text-gray-500 bg-gray-50 dark:bg-gray-800">
+      <div className="bg-gray-50 p-2 text-center text-xs text-gray-500 dark:bg-gray-800">
         <span>模拟数据仅供展示 • 实际投资请参考真实市场数据</span>
       </div>
     </div>

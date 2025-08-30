@@ -10,7 +10,7 @@ interface TradingViewWidgetProps {
 
 const TradingViewWidget: React.FC<TradingViewWidgetProps> = ({
   symbol = 'NASDAQ:TMDX',
-  width = '100%', 
+  width = '100%',
   height = 500,
 }) => {
   const containerRef = useRef<HTMLDivElement>(null)
@@ -34,7 +34,7 @@ const TradingViewWidget: React.FC<TradingViewWidgetProps> = ({
     script.src = 'https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js'
     script.type = 'text/javascript'
     script.async = true
-    
+
     script.innerHTML = JSON.stringify({
       autosize: true,
       symbol: symbol,
@@ -48,7 +48,7 @@ const TradingViewWidget: React.FC<TradingViewWidgetProps> = ({
       hide_top_toolbar: false,
       hide_legend: false,
       save_image: false,
-      container_id: widgetId
+      container_id: widgetId,
     })
 
     document.head.appendChild(script)
@@ -63,7 +63,7 @@ const TradingViewWidget: React.FC<TradingViewWidgetProps> = ({
   }, [symbol])
 
   return (
-    <div className="my-6 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
+    <div className="my-6 overflow-hidden rounded-lg border border-gray-200 dark:border-gray-700">
       <div
         ref={containerRef}
         className="tradingview-widget-container"
@@ -74,7 +74,7 @@ const TradingViewWidget: React.FC<TradingViewWidgetProps> = ({
       >
         <div className="tradingview-widget-container__widget"></div>
       </div>
-      <div className="p-2 text-center text-xs text-gray-500 bg-gray-50 dark:bg-gray-800">
+      <div className="bg-gray-50 p-2 text-center text-xs text-gray-500 dark:bg-gray-800">
         <a
           href={`https://zh.tradingview.com/symbols/${symbol}/`}
           rel="noopener nofollow"
@@ -82,8 +82,8 @@ const TradingViewWidget: React.FC<TradingViewWidgetProps> = ({
           className="text-blue-500 hover:text-blue-700"
         >
           {symbol}
-        </a>
-        {' '}由 TradingView 提供
+        </a>{' '}
+        由 TradingView 提供
       </div>
     </div>
   )
